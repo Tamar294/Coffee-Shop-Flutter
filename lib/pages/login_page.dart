@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coffee_new_app/const.dart';
 import 'package:coffee_new_app/pages/intro_screen.dart';
@@ -21,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final EmailService _emailService = new EmailService();
 
   String? _verificationCode;
+  int _selectedIndex = 0;
 
   void signInWithEmailCode() async {
     String email = _emailController.text.trim();
@@ -89,79 +89,210 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: backgroundColor,
-  //     body: Center(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           Padding(
-  //             padding: EdgeInsets.all(25),
-  //             child: Image.asset("lib/images/latte.png", height: 140),
-  //           ),
-  //           SizedBox(height: 10),
-  //           Text(
-  //             "היי, ברוכים הבאים",
-  //             style: TextStyle(
-  //               fontWeight: FontWeight.bold,
-  //               color: Colors.brown[800],
-  //               fontSize: 26,
-  //             ),
-  //           ),
-  //           SizedBox(height: 10),
-  //           Text(
-  //             "הזינו את מספר הטלפון או המייל על מנת להיכנס",
-  //             style: TextStyle(
-  //               color: Colors.black,
-  //               fontSize: 18,
-  //             ),
-  //           ),
-  //           SizedBox(height: 10),
-  //           ToggleButtons(
-  //             children: <Widget>[
-  //               Padding(
-  //                 padding: EdgeInsets.all(5),
-  //                 Text("טלפון"),
-  //               ),
-  //               Padding(
-  //                 padding: EdgeInsets.all(5),
-  //                 Text("מייל"),
-  //               ),
-  //             ],
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+    void signInWithPhoneNumber() async {
+    String phoneNumber = _phoneController.text.trim();
+    String code = _codeController.text.trim();
 
-   Widget build(BuildContext context) {
-         return Scaffold(
-       appBar: AppBar(title: Text('Login')),
-       body: Padding(
-         padding: const EdgeInsets.all(16.0),
-         child: Column(
-           children: [
-             TextField(
-               controller: _emailController,
-               decoration: InputDecoration(labelText: 'Email'),
-             ),
-             ElevatedButton(
-               onPressed: _sendVerificationCode,
-               child: Text('Send Verification Code'),
-             ),
-             TextField(
-               controller: _codeController,
-               decoration: InputDecoration(labelText: 'Verification Code'),
-             ),
-             ElevatedButton(
-               onPressed: signInWithEmailCode,
-               child: Text('Verify and Sign In'),
-             ),
-           ],
-         ),
-       ),
-     );
-   }
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationCode!, smsCode: code);
+
+    try {
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => IntroScreen()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Verification code is incorrect.')),
+      );
+    }
+  }
+
+  Future<void> _sendPhoneVerificationCode() async {
+    String phoneNumber = _phoneController.text.trim();
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => IntroScreen()),
+        );
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Phone number verification failed.')),
+        );
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        setState(() {
+          _verificationCode = verificationId;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Verification code sent to $phoneNumber.')),
+        );
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        setState(() {
+          _verificationCode = verificationId;
+        });
+      },
+    );
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(25),
+              child: Image.asset("lib/images/latte.png", height: 140),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "היי, ברוכים הבאים",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.brown[800],
+                fontSize: 26,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "הזינו את מספר הטלפון או המייל על מנת להיכנס",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+              ),
+            ),
+            SizedBox(height: 10),
+            ToggleButtons(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Text("טלפון"),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Text("מייל"),
+                ),
+              ],
+              isSelected: [
+                _selectedIndex == 0,
+                _selectedIndex == 1,
+              ],
+              onPressed: (int index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+            SizedBox(height: 10),
+            if (_selectedIndex == 1)
+              Column(
+                children: [
+                  TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'מייל',
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _sendVerificationCode,
+                    child: Text("שלחו לי קוד אימות במייל"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown[800],
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.all(10),
+                    ),
+                  ),
+                ],
+              )
+            else
+              Column(
+                children: [
+                  TextField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'טלפון',
+                        prefixText: '+972 '),
+                    keyboardType: TextInputType.phone,
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _sendVerificationCode,
+                    child: Text("שלחו לי קוד אימות לטלפון"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown[800],
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _codeController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'קוד אימות',
+                ),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _selectedIndex == 1
+                    ? signInWithEmailCode
+                    : signInWithPhoneNumber,
+                child: Text('היכנס'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.brown[800], 
+                  foregroundColor: Colors.white, 
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 }
+  //  Widget build(BuildContext context) {
+  //        return Scaffold(
+  //      appBar: AppBar(title: Text('Login')),
+  //      body: Padding(
+  //        padding: const EdgeInsets.all(16.0),
+  //        child: Column(
+  //          children: [
+  //            TextField(
+  //              controller: _emailController,
+  //              decoration: InputDecoration(labelText: 'Email'),
+  //            ),
+  //            ElevatedButton(
+  //              onPressed: _sendVerificationCode,
+  //              child: Text('Send Verification Code'),
+  //            ),
+  //            TextField(
+  //              controller: _codeController,
+  //              decoration: InputDecoration(labelText: 'Verification Code'),
+  //            ),
+  //            ElevatedButton(
+  //              onPressed: signInWithEmailCode,
+  //              child: Text('Verify and Sign In'),
+  //            ),
+  //          ],
+  //        ),
+  //      ),
+  //    );
+  //  }
+
+
+
+
+
+
