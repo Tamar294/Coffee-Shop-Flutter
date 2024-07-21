@@ -4,6 +4,7 @@ import 'package:coffee_new_app/pages/cart_page.dart';
 import 'package:flutter/material.dart';
 
 import 'about_page.dart';
+import 'coffee_manager_page.dart';
 import 'shop_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -86,6 +87,30 @@ class _HomePageState extends State<HomePage> {
                     child: ListTile(
                       leading: Icon(Icons.info),
                       title: Text("About"),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CoffeeManager())
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 26),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 10.2,
+                        backgroundColor: Color(0xA9000000),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 15,
+                        ),
+                      ),
+                      title: Text("Add Product"),
                     ),
                   ),
                 ),
