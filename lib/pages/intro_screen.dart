@@ -1,5 +1,5 @@
 import 'package:coffee_new_app/const.dart';
-import 'package:coffee_new_app/pages/home_page.dart';
+import 'package:coffee_new_app/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 class IntroScreen extends StatelessWidget {
@@ -36,7 +36,7 @@ class IntroScreen extends StatelessWidget {
             GestureDetector(
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage())
+                MaterialPageRoute(builder: (context) => LoginPage())
               ),
               child: Container(
                 padding: EdgeInsets.all(25),

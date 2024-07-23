@@ -1,10 +1,10 @@
 import 'package:coffee_new_app/model/coffee_shop.dart';
+import 'package:coffee_new_app/pages/intro_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-import 'pages/login_page.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       create: (context) => CoffeeShop(),
       builder: (context, child) => MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: LoginPage(),
+        home: IntroScreen(),
       ),
     );
   }

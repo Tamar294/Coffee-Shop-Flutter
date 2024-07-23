@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coffee_new_app/const.dart';
-import 'package:coffee_new_app/pages/intro_screen.dart';
+import 'package:coffee_new_app/pages/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => IntroScreen()),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
     void signInWithPhoneNumber() async {
-    String phoneNumber = _phoneController.text.trim();
+    // String phoneNumber = _phoneController.text.trim();
     String code = _codeController.text.trim();
 
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
       await FirebaseAuth.instance.signInWithCredential(credential);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => IntroScreen()),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
         await FirebaseAuth.instance.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => IntroScreen()),
+          MaterialPageRoute(builder: (context) => HomePage()),
         );
       },
       verificationFailed: (FirebaseAuthException e) {
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor, 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 10),
             Text(
-              "היי, ברוכים הבאים",
+              "Hi, Welcome!",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.brown[800],
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 10),
             Text(
-              "הזינו את מספר הטלפון או המייל על מנת להיכנס",
+              "Enter your phone number or email to log in",
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18,
@@ -175,11 +175,11 @@ class _LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.all(5),
-                  child: Text("טלפון"),
+                  child: Text("phone"),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
-                  child: Text("מייל"),
+                  child: Text("email"),
                 ),
               ],
               isSelected: [
@@ -199,14 +199,22 @@ class _LoginPageState extends State<LoginPage> {
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'מייל',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.brown)
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.brown)
+                        ),
+                      labelText: 'email',
                     ),
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: _sendVerificationCode,
-                    child: Text("שלחו לי קוד אימות במייל"),
+                    child: Text("sent me a verification code to my email"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown[800],
                       foregroundColor: Colors.white,
@@ -221,15 +229,22 @@ class _LoginPageState extends State<LoginPage> {
                   TextField(
                     controller: _phoneController,
                     decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'טלפון',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.brown)
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.brown)
+                        ),
+                        labelText: 'phone',
                         prefixText: '+972 '),
                     keyboardType: TextInputType.phone,
                   ),
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: _sendVerificationCode,
-                    child: Text("שלחו לי קוד אימות לטלפון"),
+                    child: Text("sent me a verification code to my phone"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown[800],
                       foregroundColor: Colors.white,
@@ -241,8 +256,11 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _codeController,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'קוד אימות',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.brown)
+                  ),
+                  hintText: 'verification code',
                 ),
               ),
               SizedBox(height: 10),
@@ -250,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _selectedIndex == 1
                     ? signInWithEmailCode
                     : signInWithPhoneNumber,
-                child: Text('היכנס'),
+                child: Text('submit'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.brown[800], 
                   foregroundColor: Colors.white, 
@@ -262,35 +280,6 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
 }
-  //  Widget build(BuildContext context) {
-  //        return Scaffold(
-  //      appBar: AppBar(title: Text('Login')),
-  //      body: Padding(
-  //        padding: const EdgeInsets.all(16.0),
-  //        child: Column(
-  //          children: [
-  //            TextField(
-  //              controller: _emailController,
-  //              decoration: InputDecoration(labelText: 'Email'),
-  //            ),
-  //            ElevatedButton(
-  //              onPressed: _sendVerificationCode,
-  //              child: Text('Send Verification Code'),
-  //            ),
-  //            TextField(
-  //              controller: _codeController,
-  //              decoration: InputDecoration(labelText: 'Verification Code'),
-  //            ),
-  //            ElevatedButton(
-  //              onPressed: signInWithEmailCode,
-  //              child: Text('Verify and Sign In'),
-  //            ),
-  //          ],
-  //        ),
-  //      ),
-  //    );
-  //  }
-
 
 
 
